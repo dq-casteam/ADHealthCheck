@@ -1,0 +1,9 @@
+Param(
+	$SaveLocation = 'C:\Admin\DQ',
+	$URL = 'https://raw.githubusercontent.com/dq-casteam/DQ-ADHealthCheck/master',
+	$File = 'DQ-ADHealthCheck-Run.ps1'
+)
+Write-Host ("[INFO] Creating Save Location $SaveLocation")
+New-Item -ItemType Directory -Path $SaveLocation -Force -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
+Invoke-WebRequest -Uri $URL/$File -OutFile $SaveLocation\$File -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
+& "$SaveLocation\$File"
