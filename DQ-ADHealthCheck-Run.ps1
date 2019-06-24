@@ -25,9 +25,9 @@ Version 1.0.20190621
 #>
 
 Param(
-	$SaveLocation = 'C:\Admin\Dashimo'
+	$SaveLocation = 'C:\Admin\DQ\ADHealthCheck'
 )
-Write-Host ('[INFO] Checking PowerShell Version')
+Write-Host ("[INFO] Checking PowerShell Version")
 $PSMinimumVersion = [Version]'5.1'
 if ($PSMinimumVersion -gt $PSVersionTable.PSVersion) {
 	throw '[FAILURE] This script requires PowerShell $PSMinimumVersion or higher. Go to https://docs.microsoft.com/en-us/powershell/wmf/ to download and install the latest version.'
@@ -72,8 +72,12 @@ if ($null -eq $DataSetForest -or $null -eq $RunTime) {
 Write-Information ("") -InformationAction Continue
 Write-Information ("[INFO] Gathering Event Data") -InformationAction Continue
 if ($null -eq $DataSetEvents) {
-	$DataSetEvents = Find-Events -Report ADUserChangesDetailed, ADUserChanges, ADUserLockouts, ADUserStatus, ADGroupChanges -Servers ($allDCs).HostName -DateFrom (Get-Date).AddDays(-60) -DateTo (Get-Date)
+	#$DataSetEvents = Find-Events -Report ADUserChanges,ADUserChangesDetailed, ADComputerChangesDetailed,ADOrganizationalUnitChangesDetailed,ADUserStatus,ADUserLockouts,ADUserLogon,ADUserUnlocked,ADComputerCreatedChanged,ADComputerDeleted,ADUserLogonKerberos,ADGroupMembershipChanges,ADGroupEnumeration,ADGroupChanges,ADGroupCreateDelete,ADGroupChangesDetailed,ADGroupPolicyChanges,ADLogsClearedSecurity,ADLogsClearedOther,ADEventsReboots -Servers ($allDCs).HostName -DateFrom (Get-Date).AddDays(-60) -DateTo (Get-Date)
+	$DataSetEvents = Find-Events -Report ADUserChanges, ADUserChangesDetailed, ADUserLockouts, ADUserStatus, ADGroupChanges -Servers ($allDCs).HostName -DateFrom (Get-Date).AddDays(-60) -DateTo (Get-Date)
 }
+Write-Information ("") -InformationAction Continue
+Write-Information ("[INFO] Creating Save Location $SaveLocation") -InformationAction Continue
+New-Item -ItemType Directory -Path $SaveLocation -Force -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
 Write-Information ("") -InformationAction Continue
 Write-Information ("[INFO] Generating Dashboard") -InformationAction Continue
 Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Get-ADForest).Name)_$(Get-Date -Format yyyy-MM-ddTHH-mm-ss).html {
@@ -670,19 +674,33 @@ Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Ge
 	Tab -Name 'Changes in Last 60 days' -IconSolid calendar {
 		Section -Name 'Group Changes' -Collapsable {
 			Write-Information ("[INFO] Table ADGroupChanges") -InformationAction Continue
-			Table -HideFooter -DataTable $DataSetEvents.ADGroupChanges
-		}
-		Section -Name 'User Status' -Collapsable {
-			Write-Information ("[INFO] Table ADUserStatus") -InformationAction Continue
-			Table -HideFooter -DataTable $DataSetEvents.ADUserStatus
+			Table -DataTable $DataSetEvents.ADGroupChanges -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
+				TableButtonCSV
+				TableButtonPageLength
+			}
 		}
 		Section -Name 'User Changes' -Collapsable {
-			Write-Information ("[INFO] Table ADGroupChanges") -InformationAction Continue
-			Table -HideFooter -DataTable $DataSetEvents.ADGroupChanges
+			$DataSetEvents["ADUserChangesTable"] = $DataSetEvents.ADUserChanges | Sort-Object 'Domain Controller', @{Expression={Get-Date $_.When -Format s}; Descending=$true} | Select-Object 'Domain Controller', Action, 'User Affected', 'Old Uac Value', 'New Uac Value', 'User Access Control', Who, @{Name='When'; Expression={Get-Date $_.When -Format s}}, 'Event ID', 'Record ID', 'Gathered From', 'Gathered LogName'
+			Write-Information ("[INFO] Table ADUserChangesTable") -InformationAction Continue
+			Table -DataTable $DataSetEvents.ADUserChangesTable -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
+				TableButtonCSV
+				TableButtonPageLength
+			}
+		}
+		Section -Name 'User Status' -Collapsable {
+			$DataSetEvents["ADUserStatusTable"] = $DataSetEvents.ADUserStatus | Sort-Object 'Domain Controller', @{Expression={Get-Date $_.When -Format s}; Descending=$true} | Select-Object 'Domain Controller', Action, 'User Affected', Who, @{Name='When'; Expression={Get-Date $_.When -Format s}}, 'Event ID', 'Record ID', 'Gathered From', 'Gathered LogName'
+			Write-Information ("[INFO] Table ADUserStatusTable") -InformationAction Continue
+			Table -DataTable $DataSetEvents.ADUserStatusTable -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
+				TableButtonCSV
+				TableButtonPageLength
+			}
 		}
 		Section -Name 'User Lockouts' -Collapsable {
-			Write-Information ("[INFO] Table ADUserStatus") -InformationAction Continue
-			Table -HideFooter -DataTable $DataSetEvents.ADUserStatus
+			Write-Information ("[INFO] Table ADUserLockouts") -InformationAction Continue
+			Table -DataTable $DataSetEvents.ADUserLockouts -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
+				TableButtonCSV
+				TableButtonPageLength
+			}
 		}
 	}
 }
