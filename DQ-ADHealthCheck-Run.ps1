@@ -1,5 +1,5 @@
 <#PSScriptInfo
-.VERSION 1.0.20190621
+.VERSION 1.0.20190625
 .GUID 94a29c6e-40b3-4988-b19a-65769b8e6875
 .AUTHOR Ronnie Smith
 .COMPANYNAME Dynamic Quest
@@ -12,7 +12,7 @@
 .REQUIREDSCRIPTS 
 .EXTERNALSCRIPTDEPENDENCIES 
 .RELEASENOTES 
-Version 1.0.20190621
+Version 1.0.20190625
 	Initial Build
 #>
 
@@ -72,8 +72,7 @@ if ($null -eq $DataSetForest -or $null -eq $RunTime) {
 Write-Information ("") -InformationAction Continue
 Write-Information ("[INFO] Gathering Event Data") -InformationAction Continue
 if ($null -eq $DataSetEvents) {
-	#$DataSetEvents = Find-Events -Report ADUserChanges,ADUserChangesDetailed, ADComputerChangesDetailed,ADOrganizationalUnitChangesDetailed,ADUserStatus,ADUserLockouts,ADUserLogon,ADUserUnlocked,ADComputerCreatedChanged,ADComputerDeleted,ADUserLogonKerberos,ADGroupMembershipChanges,ADGroupEnumeration,ADGroupChanges,ADGroupCreateDelete,ADGroupChangesDetailed,ADGroupPolicyChanges,ADLogsClearedSecurity,ADLogsClearedOther,ADEventsReboots -Servers ($allDCs).HostName -DateFrom (Get-Date).AddDays(-60) -DateTo (Get-Date)
-	$DataSetEvents = Find-Events -Report ADUserChanges, ADUserChangesDetailed, ADUserLockouts, ADUserStatus, ADGroupChanges -Servers ($allDCs).HostName -DateFrom (Get-Date).AddDays(-60) -DateTo (Get-Date)
+	$DataSetEvents = Find-Events -Report ADUserChanges, ADUserStatus, ADUserLockouts, ADComputerCreatedChanged, ADComputerDeleted, ADGroupChanges, ADGroupMembershipChanges, ADGroupCreateDelete, ADOrganizationalUnitChangesDetailed, ADGroupPolicyChanges -Servers ($allDCs).HostName -DateFrom (Get-Date).AddDays(-60) -DateTo (Get-Date)
 }
 Write-Information ("") -InformationAction Continue
 Write-Information ("[INFO] Creating Save Location $SaveLocation") -InformationAction Continue
@@ -672,34 +671,193 @@ Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Ge
 		}
 	}
 	Tab -Name 'Changes in Last 60 days' -IconSolid calendar {
-		Section -Name 'Group Changes' -Collapsable {
-			Write-Information ("[INFO] Table ADGroupChanges") -InformationAction Continue
-			Table -DataTable $DataSetEvents.ADGroupChanges -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
+		Section -Name 'User Events' -Collapsable {
+			$DataSetEvents["ADUser"] = @()
+			foreach ($Event in $DataSetEvents.ADUserChanges) {
+				$DataSetEvents.ADUser += [PSCustomObject]@{
+					'Domain Controller'=$Event.'Domain Controller';
+					'User Affected'=$Event.'User Affected';
+					Action=$Event.Action;
+					'Computer Lockout On'=$null;
+					'Old Uac Value'=$Event.'Old Uac Value';
+					'New Uac Value'=$Event.'New Uac Value';
+					'User Account Control'=$Event.'User Account Control';
+					Who=$Event.Who;
+					When=Get-Date $Event.When -Format s;
+					'Event ID'=$Event.'Event ID'
+				}
+			}
+			foreach ($Event in $DataSetEvents.ADUserStatus) {
+				$DataSetEvents.ADUser += [PSCustomObject]@{
+					'Domain Controller'=$Event.'Domain Controller';
+					'User Affected'=$Event.'User Affected';
+					Action=$Event.Action;
+					'Computer Lockout On'=$null;
+					'Old Uac Value'=$null;
+					'New Uac Value'=$null;
+					'User Account Control'=$null;
+					Who=$Event.Who;
+					When=Get-Date $Event.When -Format s;
+					'Event ID'=$Event.'Event ID'
+				}
+			}
+			foreach ($Event in $DataSetEvents.ADUserLockouts) {
+				$DataSetEvents.ADUser += [PSCustomObject]@{
+					'Domain Controller'=$Event.'Domain Controller';
+					'User Affected'=$Event.'User Affected';
+					Action=$Event.Action;
+					'Computer Lockout On'=$Event.'Computer Lockout On';
+					'Old Uac Value'=$null;
+					'New Uac Value'=$null;
+					'User Account Control'=$null;
+					Who=$Event.'Reported By';
+					When=Get-Date $Event.When -Format s;
+					'Event ID'=$Event.'Event ID'
+				}
+			}
+			$DataSetEvents["ADUserTable"] = $DataSetEvents.ADUser | Sort-Object 'Domain Controller', @{Expression={Get-Date $_.When -Format s}; Descending=$true}
+			Write-Information ("[INFO] Table ADUserTable") -InformationAction Continue
+			Table -DataTable $DataSetEvents.ADUserTable -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
 				TableButtonCSV
 				TableButtonPageLength
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A user account was locked out.' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A user account was deleted.' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A user account was disabled.' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action' string ge -Value 'An attempt was made to change an account' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
+				TableConditionalFormatting -Name 'Action' string ge -Value 'An attempt was made to reset an account' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A user account was changed.' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A user account was unlocked.' -Color DarkGreen -BackgroundColor PaleGreen
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A user account was enabled.' -Color DarkGreen -BackgroundColor PaleGreen
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A user account was created.' -Color DarkGreen -BackgroundColor PaleGreen
 			}
 		}
-		Section -Name 'User Changes' -Collapsable {
-			$DataSetEvents["ADUserChangesTable"] = $DataSetEvents.ADUserChanges | Sort-Object 'Domain Controller', @{Expression={Get-Date $_.When -Format s}; Descending=$true} | Select-Object 'Domain Controller', Action, 'User Affected', 'Old Uac Value', 'New Uac Value', 'User Access Control', Who, @{Name='When'; Expression={Get-Date $_.When -Format s}}, 'Event ID', 'Record ID', 'Gathered From', 'Gathered LogName'
-			Write-Information ("[INFO] Table ADUserChangesTable") -InformationAction Continue
-			Table -DataTable $DataSetEvents.ADUserChangesTable -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
+		Section -Name 'Computer Events' -Collapsable {
+			$DataSetEvents["ADComputer"] = @()
+			foreach ($Event in $DataSetEvents.ADComputerCreatedChanged) {
+				$DataSetEvents.ADComputer += [PSCustomObject]@{
+					'Domain Controller'=$Event.'Domain Controller';
+					'Computer Affected'=$Event.'Computer Affected';
+					Action=$Event.Action;
+					'User Parameters'=$Event.'User Parameters';
+					'Old Uac Value'=$Event.'Old Uac Value';
+					'New Uac Value'=$Event.'New Uac Value';
+					'User Account Control'=$Event.'User Account Control';
+					Who=$Event.Who;
+					When=Get-Date $Event.When -Format s;
+					'Event ID'=$Event.'Event ID'
+				}
+			}
+			foreach ($Event in $DataSetEvents.ADComputerDeleted) {
+				$DataSetEvents.ADComputer += [PSCustomObject]@{
+					'Domain Controller'=$Event.'Domain Controller';
+					'Computer Affected'=$Event.'Computer Affected';
+					Action=$Event.Action;
+					'User Parameters'=$null;
+					'Old Uac Value'=$null;
+					'New Uac Value'=$null;
+					'User Account Control'=$null;
+					Who=$Event.Who;
+					When=Get-Date $Event.When -Format s;
+					'Event ID'=$Event.'Event ID'
+				}
+			}
+			$DataSetEvents["ADComputerTable"] = $DataSetEvents.ADComputer | Sort-Object 'Domain Controller', @{Expression={Get-Date $_.When -Format s}; Descending=$true}
+			Write-Information ("[INFO] Table ADComputerTable") -InformationAction Continue
+			Table -DataTable $DataSetEvents.ADComputerTable -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
 				TableButtonCSV
 				TableButtonPageLength
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A computer account was deleted.' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A computer account was changed.' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A computer account was created.' -Color DarkGreen -BackgroundColor PaleGreen
 			}
 		}
-		Section -Name 'User Status' -Collapsable {
-			$DataSetEvents["ADUserStatusTable"] = $DataSetEvents.ADUserStatus | Sort-Object 'Domain Controller', @{Expression={Get-Date $_.When -Format s}; Descending=$true} | Select-Object 'Domain Controller', Action, 'User Affected', Who, @{Name='When'; Expression={Get-Date $_.When -Format s}}, 'Event ID', 'Record ID', 'Gathered From', 'Gathered LogName'
-			Write-Information ("[INFO] Table ADUserStatusTable") -InformationAction Continue
-			Table -DataTable $DataSetEvents.ADUserStatusTable -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
+		Section -Name 'Group Events' -Collapsable {
+			$DataSetEvents["ADGroup"] = @()
+			foreach ($Event in $DataSetEvents.ADGroupChanges) {
+				$DataSetEvents.ADGroup += [PSCustomObject]@{
+					'Domain Controller'=$Event.'Domain Controller';
+					'Group Name'=$Event.'Group Name';
+					Action=$Event.Action;
+					'Member Name'=$null;
+					'Changed Group Type'=$Event.'Changed Group Type';
+					'Changed SamAccountName'=$Event.'Changed SamAccountName';
+					'Changed SidHistory'=$Event.'Changed SidHistory';
+					Who=$Event.Who;
+					When=Get-Date $Event.When -Format s;
+					'Event ID'=$Event.'Event ID'
+				}
+			}
+			foreach ($Event in $DataSetEvents.ADGroupCreateDelete) {
+				$DataSetEvents.ADGroup += [PSCustomObject]@{
+					'Domain Controller'=$Event.'Domain Controller';
+					'Group Name'=$Event.'Group Name';
+					Action=$Event.Action;
+					'Member Name'=$null;
+					'Changed Group Type'=$null;
+					'Changed SamAccountName'=$Gnull;
+					'Changed SidHistory'=$null;
+					Who=$Event.Who;
+					When=Get-Date $Event.When -Format s;
+					'Event ID'=$Event.'Event ID'
+				}
+			}
+			foreach ($Event in $DataSetEvents.ADGroupMembershipChanges) {
+				$DataSetEvents.ADGroup += [PSCustomObject]@{
+					'Domain Controller'=$Event.'Domain Controller';
+					'Group Name'=$Event.'Group Name';
+					Action=$Event.Action;
+					'Member Name'=$Event.'Member Name';
+					'Changed Group Type'=$null;
+					'Changed SamAccountName'=$null;
+					'Changed SidHistory'=$null;
+					Who=$Event.Who;
+					When=Get-Date $Event.When -Format s;
+					'Event ID'=$Event.'Event ID'
+				}
+			}
+			$DataSetEvents["ADGroupTable"] = $DataSetEvents.ADGroup | Sort-Object 'Domain Controller', @{Expression={Get-Date $_.When -Format s}; Descending=$true}
+			Write-Information ("[INFO] Table ADGroupTable") -InformationAction Continue
+			Table -DataTable $DataSetEvents.ADGroupTable -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
 				TableButtonCSV
 				TableButtonPageLength
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A security-enabled global group was deleted.' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A security-enabled universal group was deleted.' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A member was removed from a security-enabled global group.' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A member was removed from a security-enabled universal group.' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A member was added to a security-enabled global group.' -Color DarkGreen -BackgroundColor PaleGreen
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A member was added to a security-enabled universal group.' -Color DarkGreen -BackgroundColor PaleGreen
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A security-enabled global group was changed.' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A security-enabled universal group was changed.' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A security-enabled global group was created.' -Color DarkGreen -BackgroundColor PaleGreen
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A security-enabled universal group was created.' -Color DarkGreen -BackgroundColor PaleGreen
 			}
 		}
-		Section -Name 'User Lockouts' -Collapsable {
-			Write-Information ("[INFO] Table ADUserLockouts") -InformationAction Continue
-			Table -DataTable $DataSetEvents.ADUserLockouts -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
+		Section -Name 'Organizational Unit Events' -Collapsable {
+			$DataSetEvents["ADOrganizationalUnitChangesDetailedTable"] = $DataSetEvents.ADOrganizationalUnitChangesDetailed | Sort-Object 'Domain Controller', @{Expression={Get-Date $_.When -Format s}; Descending=$true} | Select-Object 'Domain Controller', 'Organizational Unit', Action, 'Action Detail', 'Field Changed', 'Field Value', Who, @{Name='When'; Expression={Get-Date $_.When -Format s}}, 'Event ID'
+			Write-Information ("[INFO] Table ADOrganizationalUnitChangesDetailedTable") -InformationAction Continue
+			Table -DataTable $DataSetEvents.ADOrganizationalUnitChangesDetailedTable -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
 				TableButtonCSV
 				TableButtonPageLength
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A directory service object was deleted.' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A directory service object was modified.' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A directory service object was created.' -Color DarkGreen -BackgroundColor PaleGreen
+				TableConditionalFormatting -Name 'Action Detail' string eq -Value 'Value Deleted' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action Detail' string eq -Value 'Value Modified' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
+				TableConditionalFormatting -Name 'Action Detail' string eq -Value 'Value Added' -Color DarkGreen -BackgroundColor PaleGreen
+			}
+		}
+		Section -Name 'Group Policy Events' -Collapsable {
+			$DataSetEvents["ADGroupPolicyChangesTable"] = $DataSetEvents.ADGroupPolicyChanges | Sort-Object 'Domain Controller', @{Expression={Get-Date $_.When -Format s}; Descending=$true} | Select-Object 'Domain Controller', ObjectDN, ObjectGUID, ObjectClass, Action, @{Name='Action Detail'; Expression={$_.OperationType}}, OperationCorelationID, OperationApplicationCorrelationID, Who, @{Name='When'; Expression={Get-Date $_.When -Format s}}, 'Event ID'
+			Write-Information ("[INFO] Table ADGroupPolicyChangesTable") -InformationAction Continue
+			Table -DataTable $DataSetEvents.ADGroupPolicyChangesTable -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
+				TableButtonCSV
+				TableButtonPageLength
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A directory service object was deleted.' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A directory service object was modified.' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
+				TableConditionalFormatting -Name 'Action' string eq -Value 'A directory service object was created.' -Color DarkGreen -BackgroundColor PaleGreen
+				TableConditionalFormatting -Name 'Action Detail' string eq -Value 'Value Deleted' -Color DarkRed -BackgroundColor Pink
+				TableConditionalFormatting -Name 'Action Detail' string eq -Value 'Value Modified' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
+				TableConditionalFormatting -Name 'Action Detail' string eq -Value 'Value Added' -Color DarkGreen -BackgroundColor PaleGreen
 			}
 		}
 	}
