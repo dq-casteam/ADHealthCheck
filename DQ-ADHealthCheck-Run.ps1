@@ -196,7 +196,7 @@ Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Ge
 	foreach ($Domain in $DataSetForest.FoundDomains.Keys) {
 		$Global:Domain = $Domain
 		Tab -Name $Domain -IconSolid sitemap {
-			Section -Name 'Domain Information / Domain FSMO Roles' -Collapsable {
+			Section -Name 'Domain Information' -Collapsable {
 				Container {
 					Panel -Invisible {
 						$DataSetForest.FoundDomains.$Domain['DomainInformationTable'] = @(
