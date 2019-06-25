@@ -383,7 +383,7 @@ Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Ge
 												TableButtonCSV
 												TableButtonPageLength
 												TableConditionalFormatting -Name 'Account Type' string eq -Value 'Exchange' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod -Row
-												TableConditionalFormatting -Name 'Enabled' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
+												TableConditionalFormatting -Name 'Enabled' string eq -Value 'True' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
 												TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkRed -BackgroundColor Pink
 												TableConditionalFormatting -Name 'Protected' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
 												TableConditionalFormatting -Name 'LastLogonDate' string eq -Value '' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
@@ -421,7 +421,7 @@ Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Ge
 							TableButtonCSV
 							TableButtonPageLength
 							TableConditionalFormatting -Name 'Enabled' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
-							TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkRed -BackgroundColor Pink
+							TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
 							TableConditionalFormatting -Name 'Protected' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
 							TableConditionalFormatting -Name 'LastLogonDate' string eq -Value '' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
 							TableConditionalFormatting -Name 'LastLogonDate' string lt -Value (Get-Date ($RunTime).AddDays(-$DataSetForest.FoundDomains.$Global:Domain.DomainDefaultPasswordPolicy.'Max Password Age') -Format s) -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
@@ -456,7 +456,7 @@ Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Ge
 					TableButtonPageLength
 					TableConditionalFormatting -Name 'Account Type' string eq -Value 'Exchange' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod -Row
 					TableConditionalFormatting -Name 'Enabled' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
-					TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkRed -BackgroundColor Pink
+					TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
 					TableConditionalFormatting -Name 'Protected' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
 					TableConditionalFormatting -Name 'LastLogonDate' string eq -Value '' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
 					TableConditionalFormatting -Name 'LastLogonDate' string lt -Value (Get-Date ($RunTime).AddDays(-$DataSetForest.FoundDomains.$Global:Domain.DomainDefaultPasswordPolicy.'Max Password Age') -Format s) -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
@@ -493,7 +493,7 @@ Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Ge
 					TableButtonCSV
 					TableButtonPageLength
 					TableConditionalFormatting -Name 'Enabled' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
-					TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkRed -BackgroundColor Pink
+					TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
 					TableConditionalFormatting -Name 'Protected' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
 					TableConditionalFormatting -Name 'OperatingSystem' string eq -Value 'Windows 2000 Professional' -Color DarkRed -BackgroundColor Pink
 					TableConditionalFormatting -Name 'OperatingSystem' string ge -Value 'Windows 7' -Color DarkRed -BackgroundColor Pink
@@ -542,7 +542,7 @@ Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Ge
 					TableButtonCSV
 					TableButtonPageLength
 					TableConditionalFormatting -Name 'Enabled' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
-					TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkRed -BackgroundColor Pink
+					TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
 					TableConditionalFormatting -Name 'Protected' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
 					TableConditionalFormatting -Name 'OperatingSystem' string ge -Value 'Windows Server 2000' -Color DarkRed -BackgroundColor Pink
 					TableConditionalFormatting -Name 'OperatingSystem' string ge -Value 'Windows Server 2003' -Color DarkRed -BackgroundColor Pink
@@ -642,7 +642,7 @@ Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Ge
 					Table -DataTable $DataSetForest.FoundDomains.$Domain.DomainOrganizationalUnitsTable -PreContent {'<div style="text-align:center;font-weight:bold">Organizational Units</div>'} -Buttons @() -PagingOptions @(10, 20, 30) -DisableStateSave -HideFooter -Verbose {
 						TableButtonCSV
 						TableButtonPageLength
-						TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkRed -BackgroundColor Pink
+						TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
 						TableConditionalFormatting -Name 'Protected' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
 					}
 				}
