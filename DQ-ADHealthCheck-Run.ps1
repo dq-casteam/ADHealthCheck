@@ -383,7 +383,7 @@ Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Ge
 												TableButtonCSV
 												TableButtonPageLength
 												TableConditionalFormatting -Name 'Account Type' string eq -Value 'Exchange' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod -Row
-												TableConditionalFormatting -Name 'Enabled' string eq -Value 'True' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
+												TableConditionalFormatting -Name 'Enabled' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
 												TableConditionalFormatting -Name 'Protected' string eq -Value 'False' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
 												TableConditionalFormatting -Name 'Protected' string eq -Value 'True' -Color DarkGreen -BackgroundColor PaleGreen
 												TableConditionalFormatting -Name 'LastLogonDate' string eq -Value '' -Color DarkGoldenrod -BackgroundColor PaleGoldenrod
