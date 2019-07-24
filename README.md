@@ -20,7 +20,10 @@
 
 - Run the following commands from an elevated command prompt to create the required 'C:\Admin\DQ' folder and download the [DQ-ADHealthCheck.ps1](DQ-ADHealthCheck.ps1) file.
 ```powershell
-New-Item -ItemType Directory -Path 'C:\Admin\DQ' -Force -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
-Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/dq-casteam/DQ-ADHealthCheck/master/DQ-ADHealthCheck.ps1' -OutFile $SaveLocation\$Script.ps1 -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
+$SaveLocation = 'C:\Admin\DQ'
+$Repository = 'https://raw.githubusercontent.com/dq-casteam/DQ-ADHealthCheck/master'
+$Script = 'DQ-ADHealthCheck'
+New-Item -ItemType Directory -Path $SaveLocation -Force -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
+Invoke-WebRequest -Uri $Repository/$Script.ps1 -OutFile $SaveLocation\$Script.ps1 -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
 ```
 - Refer to [How-To Run](#How-To-Run) in this document for instructions to run the script.
