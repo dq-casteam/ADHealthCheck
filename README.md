@@ -20,6 +20,7 @@
     Set-ExcecutionPolicy RemoteSigned
     'C:\Admin\DQ\DQ-ADHealthCheck.ps1'
     ```
+- All required modules and files will be downloaded and installed as part of the script process.
 - Depending on number of domains, domain controllers, and users, the script can take several minutes to an hour to complete.
 - An html file will generate in the folder 'C:\Admin\DQ' named with the root domain name and a date and timestamp.
   - *Example: 'C:\Admin\DQ\ADDashboard_contoso.com_2019-07-24T16-05-20.html'*
