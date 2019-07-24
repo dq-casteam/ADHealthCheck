@@ -27,7 +27,7 @@
 
 ## How-To Install
 
-- Run the following commands from an elevated PowerShell to create the required 'C:\Admin\DQ' folder and download the [DQ-ADHealthCheck.ps1](DQ-ADHealthCheck.ps1) file.
+- Run the following commands in an elevated PowerShell to create the required 'C:\Admin\DQ' folder and download the [DQ-ADHealthCheck.ps1](DQ-ADHealthCheck.ps1) file.
   - PowerShell
     ```powershell
     $SaveLocation = 'C:\Admin\DQ'
