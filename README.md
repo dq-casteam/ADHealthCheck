@@ -37,3 +37,9 @@
     Invoke-WebRequest -Uri $Repository/$Script.ps1 -OutFile $SaveLocation\$Script.ps1 -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
     ```
 - Refer to [How-To Run](#How-To-Run) in this document for instructions to run the script.
+
+
+## Changelog
+
+- v1.0 - 2019/07/24
+  - Initial Release
