@@ -41,5 +41,5 @@
 
 ## Changelog
 
-- v1.0 - 2019/07/24
+- v1.0.20190724
   - Initial Release
