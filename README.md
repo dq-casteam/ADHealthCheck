@@ -16,7 +16,6 @@
     ```
   - PowerShell
     ```powershell
-    Set-ExecutionPolicy RemoteSigned -Force
     C:\Admin\DQ\DQ-ADHealthCheck.ps1
     ```
 - All required modules and files will be downloaded and installed as part of the script process.
@@ -45,6 +44,13 @@
   - The script requires a higher version of PowerShell installed. Follow the link to download the latest [Windows Management Framework](https://docs.microsoft.com/en-us/powershell/wmf/).
 - [FAILURE] PowerShell Module $Module Installation Failed or Loading Failed
   - Review logs and try again. All modules that load are required and need to be installed for the script to work correctly.
+- C:\Admin\DQ\DQ-ADHealthCheck.ps1 : File C:\Admin\DQ\DQ-ADHealthCheck.ps1 cannot be loaded because running scripts is
+disabled on this system. For more information, see about_Execution_Policies at
+http://go.microsoft.com/fwlink/?LinkID=135170.
+  - Execution Policy for PowerShell needs to be changed to RemoteSigned or Unrestricted.
+    ```powershell
+    Set-ExecutionPolicy RemoteSigned -Force
+    ```
 - For any other failure, try to [re-install](#How-To-Install) the script and try to run it again. 
 
 
