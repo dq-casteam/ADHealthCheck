@@ -12,7 +12,7 @@
 - Run 'C:\Admin\DQ\DQ-ADHealthCheck.ps1' from an elevated Command Prompt or PowerShell.
   - Command Prompt
     ```cmd
-    Powershell.exe -ExecutionPolicy RemoteSigned -File 'C:\Admin\DQ\DQ-ADHealthCheck.ps1'
+    Powershell.exe -ExecutionPolicy RemoteSigned -File C:\Admin\DQ\DQ-ADHealthCheck.ps1
     ```
   - PowerShell
     ```powershell
