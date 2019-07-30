@@ -39,6 +39,15 @@
 - Refer to [How-To Run](#How-To-Run) in this document for instructions to run the script.
 
 
+## Errors
+
+- [FAILURE] This script requires PowerShell $PSMinimumVersion or higher. Go to https://docs.microsoft.com/en-us/powershell/wmf/ to download and install the latest version.
+  - The script requires a higher version of PowerShell installed. Follow the link to download the latest [Windows Management Framework](https://docs.microsoft.com/en-us/powershell/wmf/)
+- [FAILURE] PowerShell Module $Module Installation Failed or Loading Failed
+  - Review logs and try again. All modules that load are required and need to be installed for the script to work correctly.
+- For any other failure, try to re-install(#How-To-Install) the script and try to run it again. 
+
+
 ## Changelog
 
 - v1.0.20190724
