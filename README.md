@@ -16,8 +16,8 @@
     ```
   - PowerShell
     ```powershell
-    Set-ExcecutionPolicy RemoteSigned
-    'C:\Admin\DQ\DQ-ADHealthCheck.ps1'
+    Set-ExecutionPolicy RemoteSigned -Force
+    C:\Admin\DQ\DQ-ADHealthCheck.ps1
     ```
 - All required modules and files will be downloaded and installed as part of the script process.
 - Depending on number of domains, domain controllers, and users, the script can take several minutes to an hour to complete.
