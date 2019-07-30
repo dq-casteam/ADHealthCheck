@@ -25,7 +25,7 @@ Version 1.0.20190625
 #>
 
 Param(
-	$SaveLocation = 'C:\Admin\DQ\ADHealthCheck'
+	$SaveLocation = 'C:\Admin\DQ'
 )
 Write-Host ("[INFO] Checking PowerShell Version")
 $PSMinimumVersion = [Version]'5.1'
