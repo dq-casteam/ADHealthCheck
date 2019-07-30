@@ -40,21 +40,27 @@
 
 ## Errors
 
-```powershell
-[FAILURE] This script requires PowerShell $PSMinimumVersion or higher. Go to https://docs.microsoft.com/en-us/powershell/wmf/ to download and install the latest version.
-```
+- PowerShell Version
+  ```powershell
+  [FAILURE] This script requires PowerShell $PSMinimumVersion or higher. Go to https://docs.microsoft.com/en-us/powershell/wmf/ to download and install the latest version.
+  ```
   - The script requires a higher version of PowerShell installed. Follow the link to download the latest [Windows Management Framework](https://docs.microsoft.com/en-us/powershell/wmf/).
-```powershell
-[FAILURE] PowerShell Module $Module Installation Failed or Loading Failed
-```
-  - Review logs and try again. All modules that load are required and need to be installed for the script to work correctly.
-```powershell
-C:\Admin\DQ\DQ-ADHealthCheck.ps1 : File C:\Admin\DQ\DQ-ADHealthCheck.ps1 cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at http://go.microsoft.com/fwlink/?LinkID=135170.
-```
+- PowerShell Execution Policy
+  ```powershell
+  C:\Admin\DQ\DQ-ADHealthCheck.ps1 : File C:\Admin\DQ\DQ-ADHealthCheck.ps1 cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at http://go.microsoft.com/fwlink/?LinkID=135170.
+  ```
   - Execution Policy for PowerShell needs to be changed to RemoteSigned or Unrestricted.
     ```powershell
     Set-ExecutionPolicy RemoteSigned -Force
     ```
+- Module Installation or Loading 
+  ```powershell
+  [FAILURE] PowerShell Module $Module Installation Failed
+  ```
+  ```powershell
+  [FAILURE] PowerShell Module $Module Loading Failed
+  ```
+  - Review logs and try again. All modules that load are required and need to be installed for the script to work correctly.
 - For any other failure, try to [re-install](#How-To-Install) the script and try to run it again. 
 
 
