@@ -40,11 +40,6 @@
 
 ## Errors
 
-- PowerShell Version
-  ```powershell
-  [FAILURE] This script requires PowerShell $PSMinimumVersion or higher. Go to https://docs.microsoft.com/en-us/powershell/wmf/ to download and install the latest version.
-  ```
-  - The script requires a higher version of PowerShell installed. Follow the link to download the latest [Windows Management Framework](https://docs.microsoft.com/en-us/powershell/wmf/).
 - PowerShell Execution Policy
   ```powershell
   C:\Admin\DQ\DQ-ADHealthCheck.ps1 : File C:\Admin\DQ\DQ-ADHealthCheck.ps1 cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at http://go.microsoft.com/fwlink/?LinkID=135170.
@@ -53,6 +48,16 @@
     ```powershell
     Set-ExecutionPolicy RemoteSigned -Force
     ```
+- Access Denied
+  ```powershell
+  Invoke-WebRequest : Access to the path 'C:\Admin\DQ\DQ-ADHealthCheck.ps1' is denied.
+  ```
+  - The script is trying to copy over itself while running, this is normal and can be ignored.
+- PowerShell Version
+  ```powershell
+  [FAILURE] This script requires PowerShell $PSMinimumVersion or higher. Go to https://docs.microsoft.com/en-us/powershell/wmf/ to download and install the latest version.
+  ```
+  - The script requires a higher version of PowerShell installed. Follow the link to download the latest [Windows Management Framework](https://docs.microsoft.com/en-us/powershell/wmf/).
 - Module Installation or Loading 
   ```powershell
   [FAILURE] PowerShell Module $Module Installation Failed
