@@ -79,7 +79,8 @@ Write-Information ("[INFO] Creating Save Location $SaveLocation") -InformationAc
 New-Item -ItemType Directory -Path $SaveLocation -Force -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
 Write-Information ("") -InformationAction Continue
 Write-Information ("[INFO] Generating Dashboard") -InformationAction Continue
-Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Get-ADForest).Name)_$(Get-Date -Format yyyy-MM-ddTHH-mm-ss).html {
+$ReportTime = Get-Date
+Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Get-ADForest).Name)_$(Get-Date $ReportTime -Format yyyy-MM-ddTHH-mm-ss).html {
 	TabOptions -SlimTabs -SelectorColor DodgerBlue -Transition
 	Tab -Name 'Forest' -IconSolid tree {
 		Section -Name 'Forest Information' -Collapsable {
@@ -979,3 +980,7 @@ Dashboard -Name $((Get-ADForest).Name) -FilePath $SaveLocation\ADDashboard_$((Ge
 		}
 	}
 }
+Write-Information ("[INFO] Generating DCDiag Text File") -InformationAction Continue
+dcdiag /e > $SaveLocation\DCDiag_$((Get-ADForest).Name)_$(Get-Date $ReportTime -Format yyyy-MM-ddTHH-mm-ss).txt
+Write-Information ("[INFO] Generating RepAdmin Text File") -InformationAction Continue
+repadmin /replsummary > $SaveLocation\RepAdmin_$((Get-ADForest).Name)_$(Get-Date $ReportTime -Format yyyy-MM-ddTHH-mm-ss).txt
